@@ -1,0 +1,49 @@
+## Archivos de Visual Studio
+.vs/
+*.user
+*.suo
+
+## Archivos de construcción
+bin/
+obj/
+out/
+[Bb]uild/
+[Bb]uild[Ll]og.*
+
+## Publicaciones
+*.publish.xml
+
+## Archivos de depuración
+*.pdb
+*.log
+
+## Configuración de entorno
+launchSettings.json
+
+## Archivos de paquetes NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+
+## Archivos de base de datos local
+*.mdf
+*.ldf
+
+## Configuración de usuario y temporales
+*.tmp
+*.temp
+*.bak
+*.swp
+
+## Sistema de archivos Mac y Linux
+.DS_Store
+Thumbs.db
+
+## Archivos de configuración específicos de VS Code
+.vscode/
+
+## Otros
+_ReSharper*/
+.idea/
+*.sln.docstates
