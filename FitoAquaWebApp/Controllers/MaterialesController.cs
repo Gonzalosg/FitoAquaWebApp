@@ -1,5 +1,7 @@
-﻿using FitoAquaWebApp.Models;
+﻿using AutoMapper;
+using FitoAquaWebApp.DTOs;
 using FitoAquaWebApp.Services;
+using FitoAquaWebApp.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitoAquaWebApp.Controllers
@@ -9,43 +11,64 @@ namespace FitoAquaWebApp.Controllers
     public class MaterialesController : ControllerBase
     {
         private readonly IMaterialService _materialService;
+        private readonly IMapper _mapper;
 
-        public MaterialesController(IMaterialService materialService)
+        public MaterialesController(IMaterialService materialService, IMapper mapper)
         {
             _materialService = materialService;
+            _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Material>>> GetAll() =>
-            Ok(await _materialService.GetAllAsync());
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Material>> GetById(int id)
+        [HttpGet("Ausencia/all")]
+        public async Task<IActionResult> GetAllAsync()
         {
-            var material = await _materialService.GetByIdAsync(id);
-            return material == null ? NotFound() : Ok(material);
+            try
+            {
+                var result = await _materialService.GetAllAsync();
+                return Ok(new ResultService { Data = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Material>> Create(Material material)
+        [HttpGet("Material/{id}")]
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
-            var created = await _materialService.AddAsync(material);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            var result = await _materialService.GetByIdAsync(id);
+            return Ok(new ResultService { Data = result });
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Material material)
+        [HttpPost("Material")]
+        public async Task<IActionResult> AddOrUpdateAsync([FromBody] MaterialDto input)
         {
-            if (id != material.Id) return BadRequest();
-            var result = await _materialService.UpdateAsync(material);
-            return result ? NoContent() : NotFound();
+            try
+            {
+                var result = await _materialService.AddOrUpdateAsync(input);
+                return Ok(new ResultService { Data = result, Result = true });
+            }
+            catch (Exception ex)
+            {
+                var deepest = ex;
+                while (deepest.InnerException != null)
+                    deepest = deepest.InnerException;
+                return StatusCode(500, $"Error interno del servidor: {deepest.Message}");
+            }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("DeleteMaterial/{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
         {
-            var result = await _materialService.DeleteAsync(id);
-            return result ? NoContent() : NotFound();
+            try
+            {
+                await _materialService.DeleteAsync(id);
+                return Ok(new ResultService { Data = id, Result = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
     }
 }

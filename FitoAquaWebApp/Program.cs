@@ -27,11 +27,21 @@ builder.Services.AddScoped<IMaterialDao, MaterialDao>();
 builder.Services.AddScoped<IMaterialService, MaterialService>();
 builder.Services.AddScoped<IObraDao, ObraDao>();
 builder.Services.AddScoped<IObraService, ObraService>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 
-builder.Services.AddControllers();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
 
 
 

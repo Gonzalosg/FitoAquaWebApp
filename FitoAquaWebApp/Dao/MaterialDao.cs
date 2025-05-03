@@ -1,4 +1,5 @@
 ﻿using FitoAquaWebApp.Data;
+using FitoAquaWebApp.Exceptions;
 using FitoAquaWebApp.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,8 +10,8 @@ namespace FitoAquaWebApp.DAO
         Task<List<Material>> GetAllAsync();
         Task<Material?> GetByIdAsync(int id);
         Task<Material> AddAsync(Material material);
-        Task<bool> UpdateAsync(Material material);
-        Task<bool> DeleteAsync(int id);
+        Task UpdateAsync(Material material);
+        Task DeleteAsync(int id);
     }
 
     public class MaterialDao : IMaterialDao
@@ -24,39 +25,70 @@ namespace FitoAquaWebApp.DAO
 
         public async Task<List<Material>> GetAllAsync()
         {
-            return await _context.Materiales.ToListAsync();
+            try
+            {
+                return await _context.Materiales.AsNoTracking().ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new DaoException("Error al obtener listado de Materiales", ex);
+            }
         }
 
         public async Task<Material?> GetByIdAsync(int id)
         {
-            return await _context.Materiales.FindAsync(id);
+            try
+            {
+                return await _context.Materiales.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                throw new DaoException($"Error al obtener Material con id = {id}", ex);
+            }
         }
 
-        public async Task<Material> AddAsync(Material material)
+        public async Task<Material> AddAsync(Material input)
         {
-            _context.Materiales.Add(material);
-            await _context.SaveChangesAsync();
-            return material;
+            try
+            {
+                _context.Materiales.Add(input);
+                await _context.SaveChangesAsync();
+                return input;
+            }
+            catch (Exception ex)
+            {
+                throw new DaoException("Error al añadir Material", ex);
+            }
         }
 
-        public async Task<bool> UpdateAsync(Material material)
+        public async Task UpdateAsync(Material input)
         {
-            if (!_context.Materiales.Any(m => m.Id == material.Id))
-                return false;
-
-            _context.Materiales.Update(material);
-            await _context.SaveChangesAsync();
-            return true;
+            try
+            {
+                _context.Materiales.Update(input);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new DaoException($"Error al actualizar Material con id {input.Id}", ex);
+            }
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            var material = await _context.Materiales.FindAsync(id);
-            if (material == null) return false;
-
-            _context.Materiales.Remove(material);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+            try
+            {
+                var input = await _context.Materiales.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id);
+                if (input != null)
+                {
+                    _context.Materiales.Remove(input);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new DaoException($"Error al eliminar Material con id = {id}", ex);
+            }
         }
     }
+}

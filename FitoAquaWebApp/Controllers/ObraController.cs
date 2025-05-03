@@ -1,5 +1,8 @@
-﻿using FitoAquaWebApp.Models;
+﻿using AutoMapper;
+using FitoAquaWebApp.DTOs;
+using FitoAquaWebApp.Models;
 using FitoAquaWebApp.Services;
+using FitoAquaWebApp.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitoAquaWebApp.Controllers
@@ -9,43 +12,76 @@ namespace FitoAquaWebApp.Controllers
     public class ObrasController : ControllerBase
     {
         private readonly IObraService _obraService;
+        private readonly IMapper _mapper;
 
-        public ObrasController(IObraService obraService)
+        public ObrasController(IObraService obraService, IMapper mapper)
         {
             _obraService = obraService;
+            _mapper = mapper;
+
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Obra>>> GetAll() =>
-            Ok(await _obraService.GetAllAsync());
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Obra>> GetById(int id)
+        [HttpGet ("Ausencia/all")]
+        public async Task<IActionResult>GetAllAsync()
         {
-            var obra = await _obraService.GetByIdAsync(id);
-            return obra == null ? NotFound() : Ok(obra);
+            try
+            {
+                var result = await _obraService.GetAllAsync();
+
+                return Ok(new ResultService() { Data = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Obra>> Create(Obra obra)
+        [HttpGet("Obra/{id}")]
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
-            var created = await _obraService.AddAsync(obra);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            var result = await _obraService.GetByIdAsync(id);
+            return Ok(new ResultService() { Data = result });
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Obra obra)
+
+
+        [HttpPost("Obra")]
+        public async Task<IActionResult> AddOrUpdateAsync([FromBody] ObraDto input)
         {
-            if (id != obra.Id) return BadRequest();
-            var result = await _obraService.UpdateAsync(obra);
-            return result ? NoContent() : NotFound();
+            try
+            {
+                var result = await _obraService.AddOrUpdateAsync(input);
+                return Ok(new ResultService() { Data = result, Result = true });
+            }
+            catch (Exception ex)
+            {
+                var deepest = ex;
+                while (deepest.InnerException != null)
+                    deepest = deepest.InnerException;
+
+                return StatusCode(500, $"Error interno del servidor: {deepest.Message}");
+            }
         }
 
-        [HttpDelete("{id}")]
+
+
+
+        [HttpDelete("DeleteObra/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _obraService.DeleteAsync(id);
-            return result ? NoContent() : NotFound();
+            try
+            {
+                await _obraService.DeleteAsync(id);
+
+                var output = new ResultService() { Data = id, Result = true };
+                return Ok(output);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+            
         }
     }
 }
