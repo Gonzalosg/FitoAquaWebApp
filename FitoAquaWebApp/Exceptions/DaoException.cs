@@ -6,5 +6,10 @@
             : base(message, innerException)
         {
         }
+
+        public DaoException(string message)
+           : base(message)
+        {
+        }
     }
 }

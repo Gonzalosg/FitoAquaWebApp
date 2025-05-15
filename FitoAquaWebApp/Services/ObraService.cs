@@ -9,92 +9,60 @@ namespace FitoAquaWebApp.Services
     {
         Task<List<ObraDto>> GetAllAsync();
         Task<ObraDto> GetByIdAsync(int id);
-        Task <ObraDto>AddOrUpdateAsync(ObraDto input);
+        Task<ObraDto> AddOrUpdateAsync(ObraDto input);
         Task DeleteAsync(int id);
     }
 
     public class ObraService : IObraService
     {
         private readonly IObraDao _obraDao;
+        private readonly IUsuarioDao _usuarioDao; // Aseguramos que el cliente existe
         private readonly IMapper _mapper;
 
-        public ObraService(IObraDao obraDao, IMapper mapper)
+        public ObraService(IObraDao obraDao, IUsuarioDao usuarioDao, IMapper mapper)
         {
             _obraDao = obraDao;
+            _usuarioDao = usuarioDao;
             _mapper = mapper;
         }
 
-        #region GetMethods
-
         public async Task<List<ObraDto>> GetAllAsync()
         {
-            try
-            {
-                var data = await _obraDao.GetAllAsync();
-                return _mapper.Map<List<ObraDto>>(data);
-            }
-            catch (Exception ex)
-            {              
-                throw new Exception("Error al obtener las obras", ex);
-            }
+            var data = await _obraDao.GetAllAsync();
+            return _mapper.Map<List<ObraDto>>(data);
         }
+
         public async Task<ObraDto> GetByIdAsync(int id)
         {
-            try
-            {
-                ObraDto result = _mapper.Map<ObraDto>(await _obraDao.GetByIdAsync(id));
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al obtener la obra con id {id}", ex);
-            }
+            var obra = await _obraDao.GetByIdAsync(id);
+            return _mapper.Map<ObraDto>(obra);
         }
 
-        #endregion
-
-
-        #region Post/Put/delete methods
         public async Task<ObraDto> AddOrUpdateAsync(ObraDto input)
         {
-            try
-            {
-                bool isNew = input.Id == 0;
-                var entity = _mapper.Map<Obra>(input);
+            // Verificamos que el cliente existe
+            var cliente = await _usuarioDao.GetByIdAsync(input.ClienteId);
+            if (cliente == null)
+                throw new Exception("El cliente especificado no existe.");
 
-                if (isNew)
-                {
-                    var created = await _obraDao.AddAsync(entity);
-                    entity = created;
-                }
-                else
-                {
-                    await _obraDao.UpdateAsync(entity);
-                }
-     
+            var entity = _mapper.Map<Obra>(input);
+
+            if (input.Id == 0) // Nuevo
+            {
+                var created = await _obraDao.AddAsync(entity);
+                return _mapper.Map<ObraDto>(created);
+            }
+            else // Actualizar
+            {
+                await _obraDao.UpdateAsync(entity);
                 var updated = await _obraDao.GetByIdAsync(entity.Id);
                 return _mapper.Map<ObraDto>(updated);
             }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al agregar o actualizar la obra", ex);
-            }
         }
-
-
 
         public async Task DeleteAsync(int id)
         {
-            try
-            {
-                await _obraDao.DeleteAsync(id);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al eliminar la obra con id {id}", ex);
-            }
+            await _obraDao.DeleteAsync(id);
         }
     }
-    #endregion
 }

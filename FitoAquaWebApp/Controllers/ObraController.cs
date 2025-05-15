@@ -22,14 +22,14 @@ namespace FitoAquaWebApp.Controllers
         }
 
 
-        [HttpGet ("Ausencia/all")]
+        [HttpGet ("Obra/all")]
         public async Task<IActionResult>GetAllAsync()
         {
             try
             {
                 var result = await _obraService.GetAllAsync();
 
-                return Ok(new ResultService() { Data = result });
+                return Ok(new ResultService() { Data = result, Result = true });
             }
             catch (Exception ex)
             {
@@ -41,7 +41,7 @@ namespace FitoAquaWebApp.Controllers
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _obraService.GetByIdAsync(id);
-            return Ok(new ResultService() { Data = result });
+            return Ok(new ResultService() { Data = result, Result = true });
         }
 
 
@@ -56,11 +56,7 @@ namespace FitoAquaWebApp.Controllers
             }
             catch (Exception ex)
             {
-                var deepest = ex;
-                while (deepest.InnerException != null)
-                    deepest = deepest.InnerException;
-
-                return StatusCode(500, $"Error interno del servidor: {deepest.Message}");
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
 

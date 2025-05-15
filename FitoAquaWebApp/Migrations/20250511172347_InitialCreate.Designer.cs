@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitoAquaWebApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250421101104_InitialCreate")]
+    [Migration("20250511172347_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

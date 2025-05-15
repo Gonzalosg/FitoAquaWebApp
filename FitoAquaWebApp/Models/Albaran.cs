@@ -8,18 +8,18 @@ namespace FitoAquaWebApp.Models
         [Key]
         public int Id { get; set; }
 
-        public DateTime FechaCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
-        public string MesReferencia { get; set; }
+        public string MesReferencia { get; set; } = string.Empty;
 
         [ForeignKey("Obra")]
         public int ObraId { get; set; }
-        public Obra Obra { get; set; }
+        public Obra Obra { get; set; } = null!;
 
         [ForeignKey("Empleado")]
         public int EmpleadoId { get; set; }
-        public Usuario Empleado { get; set; }
+        public Usuario Empleado { get; set; } = null!;
 
-        public ICollection<DetalleAlbaran>? Detalles { get; set; }
+        public ICollection<DetalleAlbaran>? Detalles { get; set; } = new List<DetalleAlbaran>();
     }
 }

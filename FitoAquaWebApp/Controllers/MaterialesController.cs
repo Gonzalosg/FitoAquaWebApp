@@ -25,7 +25,7 @@ namespace FitoAquaWebApp.Controllers
             try
             {
                 var result = await _materialService.GetAllAsync();
-                return Ok(new ResultService { Data = result });
+                return Ok(new ResultService { Data = result, Result = true });
             }
             catch (Exception ex)
             {
@@ -37,7 +37,7 @@ namespace FitoAquaWebApp.Controllers
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _materialService.GetByIdAsync(id);
-            return Ok(new ResultService { Data = result });
+            return Ok(new ResultService { Data = result, Result = true });
         }
 
         [HttpPost("Material")]
