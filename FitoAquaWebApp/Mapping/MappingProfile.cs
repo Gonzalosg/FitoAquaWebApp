@@ -9,8 +9,8 @@ public class MappingProfile : Profile
     {
         // Mapeo de Obra
         CreateMap<Obra, ObraDto>()
-      .ForMember(dest => dest.ClienteNombre, opt => opt.MapFrom(src => src.Cliente != null ? src.Cliente.Name : ""))
-      .ReverseMap();
+            .ForMember(dest => dest.ClienteNombre, opt => opt.MapFrom(src => src.Cliente != null ? src.Cliente.Name : ""))
+            .ReverseMap();
 
         // Mapeo de Material
         CreateMap<Material, MaterialDto>().ReverseMap();
@@ -34,5 +34,23 @@ public class MappingProfile : Profile
             .ReverseMap()
             .ForMember(dest => dest.Material, opt => opt.Ignore())
             .ForMember(dest => dest.Albaran, opt => opt.Ignore());
+
+        // Mapeo de UsuarioObra
+        CreateMap<UsuarioObra, UsuarioObraDto>()
+            .ForMember(dest => dest.NombreUsuario, opt => opt.MapFrom(src => src.Usuario.Name))
+            .ForMember(dest => dest.NombreObra, opt => opt.MapFrom(src => src.Obra.Nombre))
+            .ReverseMap()
+            .ForMember(dest => dest.Usuario, opt => opt.Ignore())
+            .ForMember(dest => dest.Obra, opt => opt.Ignore());
+
+        // Mapeo de ParteAveriaDto -> ParteAveria
+        CreateMap<ParteAveriaDto, ParteAveria>()
+            .ForMember(dest => dest.Estado, opt => opt.MapFrom(src => Enum.Parse<EstadoAveria>(src.Estado)));
+
+        // Mapeo de ParteAveria -> ParteAveriaDto (con nombres)
+        CreateMap<ParteAveria, ParteAveriaDto>()
+            .ForMember(dest => dest.Estado, opt => opt.MapFrom(src => src.Estado.ToString()))
+            .ForMember(dest => dest.NombreObra, opt => opt.MapFrom(src => src.Obra != null ? src.Obra.Nombre : ""))
+            .ForMember(dest => dest.NombreEmpleado, opt => opt.MapFrom(src => src.Empleado != null ? src.Empleado.Name : ""));
     }
 }

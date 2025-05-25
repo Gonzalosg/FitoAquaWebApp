@@ -28,6 +28,8 @@ namespace FitoAquaWebApp.Models
         [Required]
         public RolUsuario Rol { get; set; }
 
+   
+
         public ICollection<Obra>? ObrasCliente { get; set; } // Si es cliente
         public ICollection<Albaran>? Albaranes { get; set; } // Si es empleado
         public ICollection<ParteAveria>? PartesAveria { get; set; }

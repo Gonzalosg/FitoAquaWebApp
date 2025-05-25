@@ -111,6 +111,22 @@ namespace FitoAquaWebApp.Services
                 }
                 else
                 {
+                    entity = await _usuarioDao.GetByIdAsync(input.Id);
+
+                    if (entity == null)
+                        throw new Exception("Usuario no encontrado");
+
+                   
+                    entity.Name = input.Name;
+                    entity.Email = input.Email;
+                    entity.Rol = Enum.Parse<RolUsuario>(input.Rol);
+
+
+                    if (!string.IsNullOrWhiteSpace(input.Password))
+                    {
+                        entity.ContraseniaHash = _passwordHasher.HashPassword(entity, input.Password);
+                    }
+
                     await _usuarioDao.UpdateAsync(entity);
                 }
 

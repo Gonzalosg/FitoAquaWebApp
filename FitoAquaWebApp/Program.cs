@@ -46,6 +46,10 @@ builder.Services.AddScoped<IUsuarioDao, UsuarioDao>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IAlbaranDao, AlbaranDao>();
 builder.Services.AddScoped<IAlbaranService, AlbaranService>();
+builder.Services.AddScoped<IUsuarioObraDao, UsuarioObraDao>();
+builder.Services.AddScoped<IUsuarioObraService, UsuarioObraService>();
+builder.Services.AddScoped<IParteAveriaDao, ParteAveriaDao>();
+builder.Services.AddScoped<IParteAveriaService, ParteAveriaService>();
 
 
 
@@ -100,6 +104,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("PermitirTodo");
+app.UseStaticFiles();
 
 app.UseAuthentication(); 
 app.UseAuthorization();
